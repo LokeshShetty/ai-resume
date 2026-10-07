@@ -1,5 +1,6 @@
 import { Briefcase, FileUser, Wand2 } from "lucide-react";
-import { Button } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import type { ResumeSession } from "@/hooks/useResumeSession";
 import { DocumentInput } from "./DocumentInput";
 import { InstructionsInput } from "./InstructionsInput";
@@ -24,7 +25,7 @@ export function InputsPanel({ session, isConfigured, onTailor }: InputsPanelProp
         id="job-description"
         title="Job description"
         description="The role you are applying for"
-        icon={<Briefcase className="h-4 w-4" />}
+        icon={<Briefcase />}
         placeholder="Paste the full job description here…"
         value={inputs.jobDescription}
         onChange={inputs.setJobDescription}
@@ -34,7 +35,7 @@ export function InputsPanel({ session, isConfigured, onTailor }: InputsPanelProp
         id="resume"
         title="Your resume"
         description="Your current resume to tailor"
-        icon={<FileUser className="h-4 w-4" />}
+        icon={<FileUser />}
         placeholder="Paste your resume text here…"
         value={inputs.resume}
         onChange={inputs.setResume}
@@ -43,16 +44,11 @@ export function InputsPanel({ session, isConfigured, onTailor }: InputsPanelProp
       <InstructionsInput value={inputs.instructions} onChange={inputs.setInstructions} disabled={isLoading} />
 
       <div className="space-y-2">
-        <Button
-          className="w-full justify-center"
-          icon={<Wand2 className="h-4 w-4" />}
-          loading={isLoading}
-          disabled={!canTailor || !isConfigured}
-          onClick={onTailor}
-        >
+        <Button size="lg" className="w-full" disabled={isLoading || !canTailor || !isConfigured} onClick={onTailor}>
+          {isLoading ? <Spinner /> : <Wand2 />}
           {isLoading ? "Analyzing…" : versions.length ? "Re-tailor from scratch" : "Tailor my resume"}
         </Button>
-        {hint && <p className="text-center text-xs text-slate-500">{hint}</p>}
+        {hint && <p className="text-center text-xs text-muted-foreground">{hint}</p>}
       </div>
     </div>
   );

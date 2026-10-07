@@ -1,5 +1,6 @@
 import { MessageSquareText } from "lucide-react";
-import { Card, TextArea } from "@/components/ui";
+import { SectionCard } from "@/components/common/SectionCard";
+import { Textarea } from "@/components/ui/textarea";
 import { QuickPrompts } from "./QuickPrompts";
 
 interface InstructionsInputProps {
@@ -12,13 +13,13 @@ const appendLine = (current: string, line: string) => (current.trim() ? `${curre
 
 export function InstructionsInput({ value, onChange, disabled }: InstructionsInputProps) {
   return (
-    <Card
+    <SectionCard
       title="Additional instructions"
-      description="Optional — guide how the AI rewrites your resume"
-      icon={<MessageSquareText className="h-4 w-4" />}
+      description="Optional: guide how the AI rewrites your resume"
+      icon={<MessageSquareText />}
     >
       <div className="space-y-3">
-        <TextArea
+        <Textarea
           id="instructions"
           aria-label="Additional instructions"
           rows={3}
@@ -29,6 +30,6 @@ export function InstructionsInput({ value, onChange, disabled }: InstructionsInp
         />
         <QuickPrompts disabled={disabled} onSelect={(prompt) => onChange(appendLine(value, prompt))} />
       </div>
-    </Card>
+    </SectionCard>
   );
 }

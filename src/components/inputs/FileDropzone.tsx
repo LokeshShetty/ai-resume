@@ -1,8 +1,8 @@
 import { useRef, useState, type DragEvent } from "react";
 import { UploadCloud } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { ACCEPT_ATTRIBUTE, MAX_FILE_SIZE_MB } from "@/config/constants";
-import { Spinner } from "@/components/ui";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 interface FileDropzoneProps {
   id: string;
@@ -32,23 +32,21 @@ export function FileDropzone({ id, onFile, isParsing = false }: FileDropzoneProp
       onDrop={handleDrop}
       className={cn(
         "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors",
-        isDragging ? "border-indigo-400 bg-indigo-50" : "border-slate-200 hover:border-indigo-300 hover:bg-slate-50",
+        isDragging ? "border-primary bg-primary/5" : "hover:border-primary/40 hover:bg-muted/50",
       )}
     >
       {isParsing ? (
         <>
-          <Spinner className="text-indigo-600" />
-          <span className="text-sm text-slate-600">Extracting text…</span>
+          <Spinner className="size-6 text-primary" />
+          <span className="text-sm text-muted-foreground">Extracting text…</span>
         </>
       ) : (
         <>
-          <UploadCloud className="h-7 w-7 text-slate-400" />
-          <span className="text-sm text-slate-700">
-            <span className="font-medium text-indigo-600">Click to upload</span> or drag and drop
+          <UploadCloud className="size-7 text-muted-foreground" />
+          <span className="text-sm">
+            <span className="font-medium text-primary">Click to upload</span> or drag and drop
           </span>
-          <span className="text-xs text-slate-400">
-            PDF, DOCX, TXT or MD · up to {MAX_FILE_SIZE_MB} MB
-          </span>
+          <span className="text-xs text-muted-foreground">PDF, DOCX, TXT or MD · up to {MAX_FILE_SIZE_MB} MB</span>
         </>
       )}
       <input

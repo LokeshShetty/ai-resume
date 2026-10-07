@@ -6,7 +6,7 @@ import { ResultsPanel } from "@/components/results/ResultsPanel";
 import { SettingsDialog } from "@/components/settings/SettingsDialog";
 import { useSettings } from "@/context/SettingsContext";
 import { useResumeSession } from "@/hooks/useResumeSession";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 export default function App() {
   const { isConfigured } = useSettings();
@@ -35,7 +35,7 @@ export default function App() {
   const mobileVisibility = (view: MobileView) => (mobileView === view ? "block" : "hidden lg:block");
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen">
       <Header onOpenSettings={openSettings} onReset={reset} canReset={session.versions.length > 0} />
 
       <main className="mx-auto grid max-w-[1600px] grid-cols-1 items-start gap-6 px-3 pt-4 pb-24 sm:px-6 sm:pt-6 lg:grid-cols-[400px_minmax(0,1fr)] lg:pb-6">

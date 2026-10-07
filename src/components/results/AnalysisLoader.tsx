@@ -1,7 +1,9 @@
 import { Check } from "lucide-react";
-import { Card, Skeleton, SkeletonLines, Spinner } from "@/components/ui";
+import { SectionCard } from "@/components/common/SectionCard";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import { useRotatingItem } from "@/hooks/useRotatingItem";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 interface AnalysisLoaderProps {
   steps: readonly string[];
@@ -13,16 +15,16 @@ export function AnalysisLoader({ steps }: AnalysisLoaderProps) {
 
   return (
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]" aria-busy="true" aria-live="polite">
-      <Card title="Generating your resume" description="This usually takes 20–60 seconds">
+      <SectionCard title="Generating your resume" description="This usually takes 20–60 seconds">
         <ResumeSkeleton />
-      </Card>
-      <Card title="AI is analyzing" icon={<Spinner size="sm" />}>
+      </SectionCard>
+      <SectionCard title="AI is analyzing" icon={<Spinner />}>
         <ol className="space-y-3">
           {steps.map((step, i) => (
             <StepItem key={step} label={step} state={i < index ? "done" : i === index ? "active" : "pending"} />
           ))}
         </ol>
-      </Card>
+      </SectionCard>
     </div>
   );
 }
@@ -34,34 +36,38 @@ function StepItem({ label, state }: { label: string; state: StepState }) {
     <li className="flex items-center gap-3 text-sm">
       <span
         className={cn(
-          "flex h-6 w-6 shrink-0 items-center justify-center rounded-full",
+          "flex size-6 shrink-0 items-center justify-center rounded-full",
           state === "done" && "bg-emerald-100 text-emerald-600",
-          state === "active" && "bg-indigo-100 text-indigo-600",
-          state === "pending" && "bg-slate-100 text-slate-300",
+          state === "active" && "bg-primary/10 text-primary",
+          state === "pending" && "bg-muted text-muted-foreground/40",
         )}
       >
-        {state === "done" && <Check className="h-3.5 w-3.5" />}
-        {state === "active" && <Spinner size="sm" />}
-        {state === "pending" && <span className="h-1.5 w-1.5 rounded-full bg-current" />}
+        {state === "done" && <Check className="size-3.5" />}
+        {state === "active" && <Spinner className="size-3.5" />}
+        {state === "pending" && <span className="size-1.5 rounded-full bg-current" />}
       </span>
-      <span className={cn(state === "pending" ? "text-slate-400" : "text-slate-700", state === "active" && "font-medium")}>
+      <span className={cn(state === "pending" ? "text-muted-foreground" : "text-foreground", state === "active" && "font-medium")}>
         {label}
       </span>
     </li>
   );
 }
 
-export function ResumeSkeleton() {
+const LINE_WIDTHS = ["w-full", "w-11/12", "w-4/5", "w-3/4"];
+
+function ResumeSkeleton() {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
         <Skeleton className="h-6 w-1/3" />
         <Skeleton className="h-3 w-2/3" />
       </div>
-      {[3, 4, 3].map((lines, i) => (
-        <div key={i} className="space-y-3">
+      {[3, 4, 3].map((lines, section) => (
+        <div key={section} className="space-y-3">
           <Skeleton className="h-4 w-1/4" />
-          <SkeletonLines count={lines} />
+          {Array.from({ length: lines }, (_, line) => (
+            <Skeleton key={line} className={cn("h-3", LINE_WIDTHS[line % LINE_WIDTHS.length])} />
+          ))}
         </div>
       ))}
     </div>
@@ -73,7 +79,7 @@ export function RotatingStepText({ steps }: { steps: readonly string[] }) {
   const { item } = useRotatingItem(steps);
   return (
     <span className="inline-flex items-center gap-2">
-      <Spinner size="sm" /> {item}…
+      <Spinner /> {item}…
     </span>
   );
 }

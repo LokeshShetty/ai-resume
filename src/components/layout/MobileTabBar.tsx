@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { FileText, SlidersHorizontal } from "lucide-react";
-import { Spinner } from "@/components/ui";
-import { cn } from "@/utils/cn";
+import { Spinner } from "@/components/ui/spinner";
+import { cn } from "@/lib/utils";
 
 export type MobileView = "inputs" | "results";
 
@@ -17,15 +17,15 @@ export function MobileTabBar({ value, onChange, isLoading, hasResult }: MobileTa
   return (
     <nav
       aria-label="Sections"
-      className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-2 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden print:hidden"
+      className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-2 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden print:hidden"
     >
-      <TabButton active={value === "inputs"} onClick={() => onChange("inputs")} icon={<SlidersHorizontal className="h-5 w-5" />}>
+      <TabButton active={value === "inputs"} onClick={() => onChange("inputs")} icon={<SlidersHorizontal className="size-5" />}>
         Inputs
       </TabButton>
       <TabButton
         active={value === "results"}
         onClick={() => onChange("results")}
-        icon={isLoading ? <Spinner size="sm" /> : <FileText className="h-5 w-5" />}
+        icon={isLoading ? <Spinner className="size-5" /> : <FileText className="size-5" />}
         dot={hasResult && value !== "results"}
       >
         Resume
@@ -50,12 +50,12 @@ function TabButton({ active, onClick, icon, dot, children }: TabButtonProps) {
       onClick={onClick}
       className={cn(
         "relative flex h-16 flex-col items-center justify-center gap-1 text-xs font-medium transition-colors",
-        active ? "text-indigo-600" : "text-slate-500",
+        active ? "text-primary" : "text-muted-foreground",
       )}
     >
       <span className="relative">
         {icon}
-        {dot && <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-indigo-600" />}
+        {dot && <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-primary" />}
       </span>
       {children}
     </button>

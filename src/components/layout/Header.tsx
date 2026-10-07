@@ -1,5 +1,6 @@
 import { FileText, RotateCcw, Settings } from "lucide-react";
-import { Badge, Button } from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { PROVIDERS } from "@/config/providers";
 import { useSettings } from "@/context/SettingsContext";
 
@@ -13,34 +14,36 @@ export function Header({ onOpenSettings, onReset, canReset }: HeaderProps) {
   const { settings, activeCredentials, isConfigured } = useSettings();
 
   return (
-    <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur print:hidden">
+    <header className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur print:hidden">
       <div className="mx-auto flex h-14 max-w-[1600px] items-center justify-between gap-3 px-3 sm:h-16 sm:px-6">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-white">
-            <FileText className="h-5 w-5" />
+          <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <FileText className="size-5" />
           </div>
           <div>
-            <h1 className="text-sm font-semibold text-slate-900">AI Resume Tailor</h1>
-            <p className="hidden text-xs text-slate-500 sm:block">Tailor your resume to any job in seconds</p>
+            <h1 className="text-sm font-semibold">AI Resume Tailor</h1>
+            <p className="hidden text-xs text-muted-foreground sm:block">Tailor your resume to any job in seconds</p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="hidden md:inline-flex">
-            {isConfigured ? (
-              <Badge tone="success">
-                {PROVIDERS[settings.activeProvider].label} · {activeCredentials.model}
-              </Badge>
-            ) : (
-              <Badge tone="warning">No API key</Badge>
-            )}
-          </span>
+          {isConfigured ? (
+            <Badge variant="secondary" className="hidden md:inline-flex">
+              {PROVIDERS[settings.activeProvider].label} · {activeCredentials.model}
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="hidden border-amber-300 text-amber-700 md:inline-flex">
+              No API key
+            </Badge>
+          )}
           {canReset && (
-            <Button variant="ghost" size="sm" icon={<RotateCcw className="h-4 w-4" />} onClick={onReset}>
+            <Button variant="ghost" size="sm" aria-label="New session" onClick={onReset}>
+              <RotateCcw />
               <span className="hidden sm:inline">New session</span>
             </Button>
           )}
-          <Button variant="secondary" size="sm" icon={<Settings className="h-4 w-4" />} onClick={onOpenSettings} aria-label="Settings">
+          <Button variant="outline" size="sm" aria-label="Settings" onClick={onOpenSettings}>
+            <Settings />
             <span className="hidden sm:inline">Settings</span>
           </Button>
         </div>

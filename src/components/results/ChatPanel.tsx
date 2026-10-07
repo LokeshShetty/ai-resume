@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Bot, MessagesSquare, Send, Square } from "lucide-react";
+import { SectionCard } from "@/components/common/SectionCard";
 import { QuickPrompts } from "@/components/inputs/QuickPrompts";
-import { Button, Card, EmptyState, TextArea } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import type { ChatMessage } from "@/types";
-import { cn } from "@/utils/cn";
 import { MarkdownView } from "./MarkdownView";
 
 interface ChatPanelProps {
@@ -31,32 +34,36 @@ export function ChatPanel({ messages, isLoading, onSend, onCancel }: ChatPanelPr
   };
 
   return (
-    <Card
+    <SectionCard
       title="Refine with AI"
       description="Ask for changes and get a new version"
-      icon={<MessagesSquare className="h-4 w-4" />}
-      bodyClassName="flex flex-col gap-3 p-0"
+      icon={<MessagesSquare />}
+      contentClassName="flex flex-col p-0 sm:p-0"
     >
-      <div ref={listRef} className="max-h-[420px] min-h-[160px] flex-1 space-y-3 overflow-y-auto px-4 pt-4 sm:px-5">
+      <div ref={listRef} className="max-h-[420px] min-h-[160px] flex-1 space-y-3 overflow-y-auto px-4 py-4 sm:px-5">
         {messages.length === 0 ? (
-          <EmptyState
-            className="py-6"
-            icon={<Bot className="h-5 w-5" />}
-            title="No messages yet"
-            description="Tell the AI what to change, e.g. “make the summary punchier”."
-          />
+          <Empty className="p-4 md:p-4">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Bot />
+              </EmptyMedia>
+              <EmptyTitle className="text-sm">No messages yet</EmptyTitle>
+              <EmptyDescription>Tell the AI what to change, e.g. “make the summary punchier”.</EmptyDescription>
+            </EmptyHeader>
+          </Empty>
         ) : (
           messages.map((message) => <ChatBubble key={message.id} message={message} />)
         )}
         {isLoading && <TypingIndicator />}
       </div>
 
-      <form onSubmit={submit} className="space-y-2 border-t border-slate-100 px-4 py-4 sm:px-5">
+      <form onSubmit={submit} className="space-y-2 border-t px-4 py-4 sm:px-5">
         <QuickPrompts disabled={isLoading} onSelect={onSend} />
         <div className="flex items-end gap-2">
-          <TextArea
+          <Textarea
             aria-label="Ask for changes"
             rows={2}
+            className="min-h-0"
             placeholder="Describe the changes you want…"
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
@@ -65,13 +72,17 @@ export function ChatPanel({ messages, isLoading, onSend, onCancel }: ChatPanelPr
             }}
           />
           {isLoading ? (
-            <Button variant="danger" size="icon" aria-label="Stop" onClick={onCancel} icon={<Square className="h-4 w-4" />} />
+            <Button type="button" variant="outline" size="icon" aria-label="Stop" onClick={onCancel}>
+              <Square />
+            </Button>
           ) : (
-            <Button type="submit" size="icon" aria-label="Send" disabled={!draft.trim()} icon={<Send className="h-4 w-4" />} />
+            <Button type="submit" size="icon" aria-label="Send" disabled={!draft.trim()}>
+              <Send />
+            </Button>
           )}
         </div>
       </form>
-    </Card>
+    </SectionCard>
   );
 }
 
@@ -82,10 +93,14 @@ function ChatBubble({ message }: { message: ChatMessage }) {
       <div
         className={cn(
           "max-w-[90%] rounded-2xl px-3.5 py-2 text-sm",
-          isUser ? "rounded-br-sm bg-indigo-600 text-white" : "rounded-bl-sm bg-slate-100 text-slate-800",
+          isUser ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm bg-muted",
         )}
       >
-        {isUser ? <p className="whitespace-pre-wrap">{message.content}</p> : <MarkdownView content={message.content} className="prose-p:my-1" />}
+        {isUser ? (
+          <p className="whitespace-pre-wrap">{message.content}</p>
+        ) : (
+          <MarkdownView content={message.content} className="prose-p:my-1" />
+        )}
       </div>
     </div>
   );
@@ -93,9 +108,13 @@ function ChatBubble({ message }: { message: ChatMessage }) {
 
 function TypingIndicator() {
   return (
-    <div className="flex w-fit items-center gap-1 rounded-2xl rounded-bl-sm bg-slate-100 px-3.5 py-3" aria-label="AI is typing">
+    <div className="flex w-fit items-center gap-1 rounded-2xl rounded-bl-sm bg-muted px-3.5 py-3" aria-label="AI is typing">
       {[0, 150, 300].map((delay) => (
-        <span key={delay} className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400" style={{ animationDelay: `${delay}ms` }} />
+        <span
+          key={delay}
+          className="size-1.5 animate-bounce rounded-full bg-muted-foreground/60"
+          style={{ animationDelay: `${delay}ms` }}
+        />
       ))}
     </div>
   );

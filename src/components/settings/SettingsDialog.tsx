@@ -1,9 +1,18 @@
 import { useState } from "react";
-import { ExternalLink, Eye, EyeOff, ShieldCheck } from "lucide-react";
-import { Button, Field, Input, Modal, Select } from "@/components/ui";
+import { CheckCircle2, ExternalLink, Eye, EyeOff, ShieldCheck, TriangleAlert } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { Spinner } from "@/components/ui/spinner";
 import { PROVIDER_LIST, PROVIDERS } from "@/config/providers";
 import { useSettings } from "@/context/SettingsContext";
+import { useProviderModels, type ModelsState } from "@/hooks/useProviderModels";
+import { resolveModel } from "@/services/modelOptions";
 import type { ProviderId, ProviderSettings, Settings } from "@/types";
+
+const CUSTOM_MODEL = "__custom__";
 
 interface SettingsDialogProps {
   open: boolean;
@@ -14,24 +23,27 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
   const { settings, saveSettings } = useSettings();
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title="AI provider settings"
-      description="Bring your own API key. Requests go directly from your browser to the provider."
-    >
-      {/* Remount on open so the draft always starts from the saved settings. */}
-      {open && (
-        <SettingsForm
-          initial={settings}
-          onCancel={onClose}
-          onSave={(next) => {
-            saveSettings(next);
-            onClose();
-          }}
-        />
-      )}
-    </Modal>
+    <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>AI provider settings</DialogTitle>
+          <DialogDescription>
+            Bring your own API key. Requests go directly from your browser to the provider.
+          </DialogDescription>
+        </DialogHeader>
+        {/* Mounted only while open, so the draft always starts from the saved settings. */}
+        {open && (
+          <SettingsForm
+            initial={settings}
+            onCancel={onClose}
+            onSave={(next) => {
+              saveSettings(next);
+              onClose();
+            }}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -44,96 +56,169 @@ interface SettingsFormProps {
 function SettingsForm({ initial, onSave, onCancel }: SettingsFormProps) {
   const [draft, setDraft] = useState(initial);
   const [showKey, setShowKey] = useState(false);
+  const [customModel, setCustomModel] = useState(false);
   const provider = PROVIDERS[draft.activeProvider];
   const current = draft.providers[draft.activeProvider];
 
   const updateProvider = (patch: Partial<ProviderSettings>) =>
     setDraft((prev) => ({
       ...prev,
-      providers: { ...prev.providers, [prev.activeProvider]: { ...current, ...patch } },
+      providers: {
+        ...prev.providers,
+        [prev.activeProvider]: { ...prev.providers[prev.activeProvider], ...patch },
+      },
     }));
+
+  // Once the key's real model list arrives, swap out a saved model that is no longer available.
+  const models = useProviderModels(draft.activeProvider, current.apiKey, (available) => {
+    if (customModel) return;
+    setDraft((prev) => {
+      const settings = prev.providers[prev.activeProvider];
+      const model = resolveModel(settings.model, available);
+      return model === settings.model
+        ? prev
+        : { ...prev, providers: { ...prev.providers, [prev.activeProvider]: { ...settings, model } } };
+    });
+  });
+
+  const isListed = models.models.some((model) => model.id === current.model);
+  const selectValue = customModel ? CUSTOM_MODEL : current.model;
 
   return (
     <form
-      className="space-y-5"
       onSubmit={(event) => {
         event.preventDefault();
         onSave(draft);
       }}
     >
-      <Field label="Provider" htmlFor="provider">
-        <Select
-          id="provider"
-          value={draft.activeProvider}
-          onChange={(event) => setDraft({ ...draft, activeProvider: event.target.value as ProviderId })}
-        >
-          {PROVIDER_LIST.map(({ id, label }) => (
-            <option key={id} value={id}>
-              {label}
-            </option>
-          ))}
-        </Select>
-      </Field>
-
-      <Field
-        label="API key"
-        htmlFor="api-key"
-        hint={
-          <a href={provider.keyUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-indigo-600 hover:underline">
-            Get a {provider.label} API key <ExternalLink className="h-3 w-3" />
-          </a>
-        }
-      >
-        <div className="relative">
-          <Input
-            id="api-key"
-            type={showKey ? "text" : "password"}
-            autoComplete="off"
-            spellCheck={false}
-            placeholder={provider.keyPlaceholder}
-            value={current.apiKey}
-            onChange={(event) => updateProvider({ apiKey: event.target.value })}
-            className="pr-10 font-mono"
-          />
-          <button
-            type="button"
-            aria-label={showKey ? "Hide API key" : "Show API key"}
-            onClick={() => setShowKey((value) => !value)}
-            className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-slate-400 hover:text-slate-600"
+      <FieldGroup className="gap-5">
+        <Field>
+          <FieldLabel htmlFor="provider">Provider</FieldLabel>
+          <NativeSelect
+            id="provider"
+            className="w-full"
+            value={draft.activeProvider}
+            onChange={(event) => {
+              setCustomModel(false);
+              setDraft({ ...draft, activeProvider: event.target.value as ProviderId });
+            }}
           >
-            {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-          </button>
-        </div>
-      </Field>
+            {PROVIDER_LIST.map(({ id, label }) => (
+              <NativeSelectOption key={id} value={id}>
+                {label}
+              </NativeSelectOption>
+            ))}
+          </NativeSelect>
+        </Field>
 
-      <Field label="Model" htmlFor="model" hint="Pick a suggestion or type any model ID your key has access to.">
-        <Input
-          id="model"
-          list="model-options"
-          spellCheck={false}
-          value={current.model}
-          onChange={(event) => updateProvider({ model: event.target.value })}
-          className="font-mono"
-        />
-        <datalist id="model-options">
-          {provider.models.map((model) => (
-            <option key={model} value={model} />
-          ))}
-        </datalist>
-      </Field>
+        <Field>
+          <FieldLabel htmlFor="api-key">API key</FieldLabel>
+          <div className="relative">
+            <Input
+              id="api-key"
+              type={showKey ? "text" : "password"}
+              autoComplete="off"
+              spellCheck={false}
+              placeholder={provider.keyPlaceholder}
+              value={current.apiKey}
+              onChange={(event) => updateProvider({ apiKey: event.target.value })}
+              className="pr-10 font-mono"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={showKey ? "Hide API key" : "Show API key"}
+              onClick={() => setShowKey((value) => !value)}
+              className="absolute top-1/2 right-0.5 -translate-y-1/2 text-muted-foreground"
+            >
+              {showKey ? <EyeOff /> : <Eye />}
+            </Button>
+          </div>
+          <FieldDescription>
+            <a href={provider.keyUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1">
+              Get a {provider.label} API key <ExternalLink className="size-3" />
+            </a>
+          </FieldDescription>
+          <KeyStatus state={models} />
+        </Field>
 
-      <p className="flex items-start gap-2 rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
-        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-        Keys are stored only in this browser's local storage and are never sent anywhere except the selected provider.
-        Avoid using this on shared computers.
-      </p>
+        <Field>
+          <FieldLabel htmlFor="model">Model</FieldLabel>
+          <NativeSelect
+            id="model"
+            className="w-full"
+            value={selectValue}
+            onChange={(event) => {
+              const isCustom = event.target.value === CUSTOM_MODEL;
+              setCustomModel(isCustom);
+              if (!isCustom) updateProvider({ model: event.target.value });
+            }}
+          >
+            {!isListed && !customModel && (
+              <NativeSelectOption value={current.model}>{current.model} (saved)</NativeSelectOption>
+            )}
+            {models.models.map((model) => (
+              <NativeSelectOption key={model.id} value={model.id}>
+                {model.label === model.id ? model.id : `${model.label} (${model.id})`}
+              </NativeSelectOption>
+            ))}
+            <NativeSelectOption value={CUSTOM_MODEL}>Custom model ID…</NativeSelectOption>
+          </NativeSelect>
+          {customModel && (
+            <Input
+              aria-label="Custom model ID"
+              spellCheck={false}
+              placeholder="Exact model ID"
+              value={current.model}
+              onChange={(event) => updateProvider({ model: event.target.value })}
+              className="font-mono"
+            />
+          )}
+        </Field>
 
-      <div className="flex justify-end gap-2">
-        <Button variant="secondary" onClick={onCancel}>
+        <p className="flex items-start gap-2 rounded-lg bg-muted p-3 text-xs text-muted-foreground">
+          <ShieldCheck className="mt-0.5 size-4 shrink-0 text-emerald-600" />
+          Keys are stored only in this browser's local storage and are only sent to the provider you select. Avoid
+          using this on shared computers.
+        </p>
+      </FieldGroup>
+
+      <DialogFooter className="mt-6">
+        <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit">Save settings</Button>
-      </div>
+        <Button type="submit" disabled={!current.model.trim()}>
+          Save settings
+        </Button>
+      </DialogFooter>
     </form>
   );
+}
+
+/** Shows whether the key worked, based on the live model list request. */
+function KeyStatus({ state }: { state: ModelsState }) {
+  switch (state.status) {
+    case "idle":
+      return null;
+    case "loading":
+      return (
+        <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Spinner className="size-3.5" /> Checking key and loading models…
+        </p>
+      );
+    case "success":
+      return (
+        <p className="flex items-center gap-1.5 text-xs text-emerald-700">
+          <CheckCircle2 className="size-3.5" /> Key works · {state.models.length} models available
+        </p>
+      );
+    case "error":
+      return (
+        <p role="alert" className="flex items-start gap-1.5 text-xs text-destructive">
+          <TriangleAlert className="mt-px size-3.5 shrink-0" />
+          <span className="break-words">Couldn't load models ({state.error}). Showing suggested models instead.</span>
+        </p>
+      );
+  }
 }
