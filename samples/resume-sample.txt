@@ -1,0 +1,24 @@
+Alex Morgan
+alex.morgan@example.com | (555) 010-2233 | Austin, TX | github.com/alexmorgan
+
+SUMMARY
+Frontend developer with 6 years of experience building web applications with React and JavaScript. Enjoys working with designers and improving user experience.
+
+EXPERIENCE
+Frontend Developer — Brightlane Software (2021 – Present)
+- Developed features for a customer analytics dashboard using React and TypeScript
+- Created reusable UI components that other teams started using
+- Worked on making pages load faster by splitting code and lazy loading charts
+- Wrote unit tests with Jest and React Testing Library
+- Reviewed pull requests and helped onboard two junior developers
+
+Web Developer — Pixel & Co Agency (2018 – 2021)
+- Built marketing websites and e-commerce stores for clients using JavaScript, HTML and SCSS
+- Integrated REST APIs and payment providers
+- Built a small internal tool with Node.js and Express
+
+EDUCATION
+B.S. Computer Science — University of Texas at Austin (2018)
+
+SKILLS
+React, JavaScript, TypeScript, HTML, CSS, SCSS, Redux, Jest, Node.js, Express, Git, Figma

@@ -24,6 +24,18 @@ npm run dev        # http://localhost:5173
 
 Open **Settings**, pick a provider, paste your API key, and choose a model.
 
+### Sample files
+
+The `samples/` folder has files for trying the app quickly:
+
+| File | Use it as |
+| --- | --- |
+| `job-description-frontend.txt` | Job description (text): Senior Frontend Engineer |
+| `job-description-backend.pdf` | Job description (PDF): Backend Engineer, Payments |
+| `resume-sample.txt` | Resume: a frontend developer with 6 years of experience |
+
+The frontend job is a close match for the sample resume, so expect a high score. The backend job is a poor match, so expect a lower score and a long list of gaps. The app should not invent experience to cover them.
+
 | Script | Purpose |
 | --- | --- |
 | `npm run dev` | Start the dev server |

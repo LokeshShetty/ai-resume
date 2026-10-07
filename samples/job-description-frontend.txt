@@ -1,0 +1,37 @@
+Senior Frontend Engineer
+Northwind Analytics — Remote (US/EU time zones) — Full-time
+
+About us
+Northwind Analytics builds a real-time business intelligence platform used by 4,000+ companies to explore their data. Our product team is small, senior and ships weekly.
+
+The role
+We are looking for a Senior Frontend Engineer to own key parts of our dashboard experience: interactive charts, a drag-and-drop report builder, and a component library shared across three product teams. You will work closely with design and backend engineers and help raise the bar on performance, accessibility and testing.
+
+What you will do
+- Build and maintain complex, data-heavy UIs in React and TypeScript
+- Own our design system (Storybook) and drive adoption across teams
+- Improve performance: bundle size, rendering of large tables and charts, Core Web Vitals
+- Design frontend architecture and state management for real-time features (WebSockets)
+- Write unit, integration and end-to-end tests (Vitest, Testing Library, Playwright)
+- Mentor mid-level engineers through code review and pairing
+- Partner with product and design to scope features and make trade-offs
+
+Requirements
+- 5+ years of professional frontend development experience
+- Expert knowledge of React, TypeScript and modern CSS (Tailwind or CSS-in-JS)
+- Experience building or maintaining a component library / design system
+- Strong understanding of web performance and accessibility (WCAG 2.1)
+- Experience with data visualization libraries (D3, Recharts, ECharts or similar)
+- Comfortable with REST and GraphQL APIs
+- Clear written communication; experience working in a remote team
+
+Nice to have
+- Next.js or server-side rendering experience
+- Node.js backend experience
+- CI/CD with GitHub Actions; Docker
+- Experience in a B2B SaaS or analytics product
+
+What we offer
+- Salary range: $150,000 – $185,000 + equity
+- Fully remote, flexible hours, 4 weeks of vacation
+- $2,000 annual learning budget
