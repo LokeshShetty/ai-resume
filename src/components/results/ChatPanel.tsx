@@ -10,13 +10,14 @@ import type { ChatMessage } from "@/types";
 import { MarkdownView } from "./MarkdownView";
 
 interface ChatPanelProps {
+  className?: string;
   messages: ChatMessage[];
   isLoading: boolean;
   onSend: (message: string) => void;
   onCancel: () => void;
 }
 
-export function ChatPanel({ messages, isLoading, onSend, onCancel }: ChatPanelProps) {
+export function ChatPanel({ className, messages, isLoading, onSend, onCancel }: ChatPanelProps) {
   const [draft, setDraft] = useState("");
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -38,9 +39,10 @@ export function ChatPanel({ messages, isLoading, onSend, onCancel }: ChatPanelPr
       title="Refine with AI"
       description="Ask for changes and get a new version"
       icon={<MessagesSquare />}
-      contentClassName="flex flex-col p-0 sm:p-0"
+      className={className}
+      contentClassName="flex min-h-0 flex-1 flex-col p-0 sm:p-0"
     >
-      <div ref={listRef} className="max-h-[420px] min-h-[160px] flex-1 space-y-3 overflow-y-auto px-4 py-4 sm:px-5">
+      <div ref={listRef} className="max-h-[420px] min-h-[160px] flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5 xl:max-h-none xl:min-h-0">
         {messages.length === 0 ? (
           <Empty className="p-4 md:p-4">
             <EmptyHeader>
@@ -57,7 +59,7 @@ export function ChatPanel({ messages, isLoading, onSend, onCancel }: ChatPanelPr
         {isLoading && <TypingIndicator />}
       </div>
 
-      <form onSubmit={submit} className="space-y-2 border-t px-4 py-4 sm:px-5">
+      <form onSubmit={submit} className="shrink-0 space-y-2 border-t px-4 py-4 sm:px-5">
         <QuickPrompts disabled={isLoading} onSelect={onSend} />
         <div className="flex items-end gap-2">
           <Textarea

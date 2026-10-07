@@ -2,10 +2,12 @@ import { useState } from "react";
 import { InputsPanel } from "@/components/inputs/InputsPanel";
 import { Header } from "@/components/layout/Header";
 import { MobileTabBar, type MobileView } from "@/components/layout/MobileTabBar";
+import { PrintableResume } from "@/components/results/PrintableResume";
 import { ResultsPanel } from "@/components/results/ResultsPanel";
 import { SettingsDialog } from "@/components/settings/SettingsDialog";
 import { useSettings } from "@/context/SettingsContext";
 import { useResumeSession } from "@/hooks/useResumeSession";
+import { SCROLL_PANE } from "@/lib/layout";
 import { cn } from "@/lib/utils";
 
 export default function App() {
@@ -35,25 +37,30 @@ export default function App() {
   const mobileVisibility = (view: MobileView) => (mobileView === view ? "block" : "hidden lg:block");
 
   return (
-    <div className="min-h-screen">
-      <Header onOpenSettings={openSettings} onReset={reset} canReset={session.versions.length > 0} />
+    <>
+      {/* On desktop the app fills the viewport; each section scrolls on its own. */}
+      <div className="flex min-h-dvh flex-col lg:h-dvh lg:overflow-hidden print:hidden">
+        <Header onOpenSettings={openSettings} onReset={reset} canReset={session.versions.length > 0} />
 
-      <main className="mx-auto grid max-w-[1600px] grid-cols-1 items-start gap-6 px-3 pt-4 pb-24 sm:px-6 sm:pt-6 lg:grid-cols-[400px_minmax(0,1fr)] lg:pb-6">
-        <aside className={cn(mobileVisibility("inputs"), "print:hidden")}>
-          <InputsPanel session={session} isConfigured={isConfigured} onTailor={tailor} />
-        </aside>
-        <div className={mobileVisibility("results")}>
-          <ResultsPanel session={session} isConfigured={isConfigured} onOpenSettings={openSettings} />
-        </div>
-      </main>
+        <main className="mx-auto grid w-full max-w-[1600px] grid-cols-1 gap-6 px-3 pt-4 pb-24 sm:px-6 sm:pt-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[400px_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] lg:pb-6">
+          <aside className={cn(mobileVisibility("inputs"), SCROLL_PANE)}>
+            <InputsPanel session={session} isConfigured={isConfigured} onTailor={tailor} />
+          </aside>
+          <div className={cn(mobileVisibility("results"), "lg:min-h-0")}>
+            <ResultsPanel session={session} isConfigured={isConfigured} onOpenSettings={openSettings} />
+          </div>
+        </main>
 
-      <MobileTabBar
-        value={mobileView}
-        onChange={showView}
-        isLoading={session.isLoading}
-        hasResult={session.versions.length > 0}
-      />
+        <MobileTabBar
+          value={mobileView}
+          onChange={showView}
+          isLoading={session.isLoading}
+          hasResult={session.versions.length > 0}
+        />
+      </div>
+
+      {session.activeVersion && <PrintableResume content={session.activeVersion.resume} />}
       <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
-    </div>
+    </>
   );
 }

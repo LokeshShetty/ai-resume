@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { ANALYSIS_STEPS, REVISION_STEPS } from "@/config/constants";
 import type { ResumeSession } from "@/hooks/useResumeSession";
+import { SCROLL_PANE } from "@/lib/layout";
+import { cn } from "@/lib/utils";
 import { AnalysisLoader, RotatingStepText } from "./AnalysisLoader";
 import { ChatPanel } from "./ChatPanel";
 import { MatchInsights } from "./MatchInsights";
@@ -16,8 +18,7 @@ interface ResultsPanelProps {
   onOpenSettings: () => void;
 }
 
-/** Short screens (empty, loading, error) stay pinned in view while the inputs column scrolls. */
-const PINNED = "space-y-4 lg:sticky lg:top-20";
+const STATE_SCREEN = cn("space-y-4", SCROLL_PANE);
 
 /** Chooses which screen to show: empty, loading, error, or the tailored result. */
 export function ResultsPanel({ session, isConfigured, onOpenSettings }: ResultsPanelProps) {
@@ -25,7 +26,7 @@ export function ResultsPanel({ session, isConfigured, onOpenSettings }: ResultsP
 
   if (isLoading && mode === "tailor") {
     return (
-      <div className={PINNED}>
+      <div className={STATE_SCREEN}>
         <AnalysisLoader steps={ANALYSIS_STEPS} />
       </div>
     );
@@ -33,7 +34,7 @@ export function ResultsPanel({ session, isConfigured, onOpenSettings }: ResultsP
 
   if (!activeVersion) {
     return (
-      <div className={PINNED}>
+      <div className={STATE_SCREEN}>
         {error && <ErrorAlert message={error} onRetry={session.tailor} />}
         <Card className="py-0">{isConfigured ? <WelcomeState /> : <NoKeyState onOpenSettings={onOpenSettings} />}</Card>
       </div>
@@ -41,16 +42,34 @@ export function ResultsPanel({ session, isConfigured, onOpenSettings }: ResultsP
   }
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4 lg:h-full lg:min-h-0">
       {error && <ErrorAlert message={error} />}
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="relative">
-          <ResumePreview version={activeVersion} versions={versions} onSelectVersion={session.selectVersion} />
+      {/* lg: preview and side panels stack and scroll together; xl: two columns that scroll independently. */}
+      <div
+        className={cn(
+          "grid grid-cols-1 gap-4 lg:flex-1",
+          SCROLL_PANE,
+          "xl:grid-cols-[minmax(0,1fr)_360px] xl:grid-rows-[minmax(0,1fr)] xl:overflow-visible",
+        )}
+      >
+        <div className="relative xl:min-h-0">
+          <ResumePreview
+            className="xl:h-full"
+            version={activeVersion}
+            versions={versions}
+            onSelectVersion={session.selectVersion}
+          />
           {isLoading && <RevisionOverlay />}
         </div>
-        <div className="space-y-4 print:hidden">
+        <div className={cn("flex flex-col gap-4", "xl:-m-1 xl:min-h-0 xl:overflow-y-auto xl:overscroll-contain xl:p-1")}>
           <MatchInsights version={activeVersion} />
-          <ChatPanel messages={chat} isLoading={isLoading} onSend={session.revise} onCancel={session.cancel} />
+          <ChatPanel
+            className="xl:min-h-[360px] xl:flex-1"
+            messages={chat}
+            isLoading={isLoading}
+            onSend={session.revise}
+            onCancel={session.cancel}
+          />
         </div>
       </div>
     </div>

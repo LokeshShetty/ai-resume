@@ -13,12 +13,13 @@ import { MarkdownView } from "./MarkdownView";
 type ViewMode = "preview" | "markdown";
 
 interface ResumePreviewProps {
+  className?: string;
   version: ResumeVersion;
   versions: ResumeVersion[];
   onSelectVersion: (id: string) => void;
 }
 
-export function ResumePreview({ version, versions, onSelectVersion }: ResumePreviewProps) {
+export function ResumePreview({ className, version, versions, onSelectVersion }: ResumePreviewProps) {
   const [view, setView] = useState<ViewMode>("preview");
   const { copied, copy } = useCopy();
 
@@ -26,7 +27,8 @@ export function ResumePreview({ version, versions, onSelectVersion }: ResumePrev
     <SectionCard
       title="Tailored resume"
       description="Review the result, then refine it with the assistant"
-      contentClassName="p-0 sm:p-0"
+      className={className}
+      contentClassName="flex min-h-0 flex-1 flex-col p-0 sm:p-0"
       action={
         <Tabs value={view} onValueChange={(next) => setView(next as ViewMode)}>
           <TabsList aria-label="Resume view">
@@ -40,7 +42,7 @@ export function ResumePreview({ version, versions, onSelectVersion }: ResumePrev
         </Tabs>
       }
     >
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b px-4 py-2.5 sm:px-5 print:hidden">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b px-4 py-2.5 sm:px-5">
         <NativeSelect
           aria-label="Resume version"
           size="sm"
@@ -68,9 +70,9 @@ export function ResumePreview({ version, versions, onSelectVersion }: ResumePrev
         </div>
       </div>
 
-      <div className="overflow-y-auto rounded-b-xl bg-muted/50 p-2 sm:max-h-[75vh] sm:p-6">
+      <div className="overflow-y-auto overscroll-contain rounded-b-xl bg-muted/50 p-2 sm:max-h-[75vh] sm:p-6 xl:max-h-none xl:min-h-0 xl:flex-1">
         {view === "preview" ? (
-          <article className="print-area mx-auto max-w-[820px] rounded-md border bg-background px-5 py-6 shadow-xs sm:px-12 sm:py-10">
+          <article className="mx-auto max-w-[820px] rounded-md border bg-background px-5 py-6 shadow-xs sm:px-12 sm:py-10">
             <MarkdownView content={version.resume} />
           </article>
         ) : (
