@@ -3,6 +3,7 @@ import type { ProviderId, Settings } from "@/types";
 export interface ProviderDefinition {
   id: ProviderId;
   label: string;
+  /** Suggested models; the first is the default. Users can still enter any model ID. */
   models: string[];
   keyPlaceholder: string;
   keyUrl: string;
@@ -19,14 +20,14 @@ export const PROVIDERS: Record<ProviderId, ProviderDefinition> = {
   openai: {
     id: "openai",
     label: "OpenAI",
-    models: ["gpt-5", "gpt-5-mini", "gpt-4.1"],
+    models: ["gpt-6.1-sol", "gpt-6-astra", "gpt-6-luna"],
     keyPlaceholder: "sk-...",
     keyUrl: "https://platform.openai.com/api-keys",
   },
   gemini: {
     id: "gemini",
     label: "Google Gemini",
-    models: ["gemini-2.5-pro", "gemini-2.5-flash"],
+    models: ["gemini-3.8-flash", "gemini-3.1-pro-preview", "gemini-3.5-flash-lite"],
     keyPlaceholder: "AIza...",
     keyUrl: "https://aistudio.google.com/apikey",
   },

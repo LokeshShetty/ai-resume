@@ -19,7 +19,7 @@ export function Alert({ tone = "error", children, action, className }: AlertProp
   return (
     <div role="alert" className={cn("flex items-start gap-2 rounded-lg p-3 text-sm ring-1", toneClass, className)}>
       <Icon className="mt-0.5 h-4 w-4 shrink-0" />
-      <div className="flex-1">{children}</div>
+      <div className="flex-1 whitespace-pre-line break-words">{children}</div>
       {action}
     </div>
   );
